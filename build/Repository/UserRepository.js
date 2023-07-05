@@ -66,14 +66,44 @@ let UserRepository = exports.UserRepository = class UserRepository {
         //
         return this._users;
     }
-    findbyID(id) {
-        //
-        let userNeed2find = this._users.find((ele) => {
-            return ele._id == id;
+    findbyID(id, type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //
+            let userNeed2find;
+            if (type == type_1.TYPE_ORM.sequelize) {
+                userNeed2find = yield userSchema_1.default.findByPk(id);
+            }
+            else if (type == type_1.TYPE_ORM.prisma) {
+                userNeed2find = yield prisma.user.findUnique({
+                    where: {
+                        id: id,
+                    },
+                });
+                console.log("🚀 ~ file: UserRepository.ts:37 ~ UserRepository ~ findbyID ~ userNeed2find:", userNeed2find);
+            }
+            return userNeed2find ? userNeed2find : null;
         });
-        if (!userNeed2find)
-            return null;
-        return userNeed2find;
+    }
+    findbyIDdepartment(id, type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //
+            let userNeed2find;
+            if (type == type_1.TYPE_ORM.sequelize) {
+                userNeed2find = yield userSchema_1.default.findByPk(id);
+            }
+            else if (type == type_1.TYPE_ORM.prisma) {
+                userNeed2find = yield prisma.depatment.findUnique({
+                    where: {
+                        id: id,
+                    },
+                    include: {
+                        users: true, // All posts where authorId == 20
+                    },
+                });
+                console.log("🚀 ~ file: UserRepository.ts:56 ~ UserRepository ~ findbyIDdepartment ~ userNeed2find:", userNeed2find);
+            }
+            return userNeed2find ? userNeed2find : null;
+        });
     }
     create(user, type) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -82,12 +112,9 @@ let UserRepository = exports.UserRepository = class UserRepository {
                 newUser = yield userSchema_1.default.create(user.toObject());
             }
             else if (type == type_1.TYPE_ORM.prisma) {
-                newUser = yield prisma.user.create({
-                    data: user.toObject(),
-                });
+                newUser = yield prisma.user.create({ data: user.toObject() });
                 console.log("🚀 ~ file: UserRepository.ts:43 ~ UserRepository ~ create ~ newUser:", newUser);
             }
-            console.log(" new user :", newUser);
             return newUser ? user : null;
         });
     }

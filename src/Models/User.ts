@@ -12,7 +12,7 @@ class User {
      }
 
      toObject() {
-          return { name: this._name, birthday: this._birthday, address: this._address, identity: "Xxxxxx" };
+          return { name: this._name, address: this._address, birthday: this._birthday, departmentId: 1 };
      }
 }
 export default User;

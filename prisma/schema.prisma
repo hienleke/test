@@ -10,7 +10,7 @@ datasource db {
 }
 
 
-model Depatment{
+model Department{
   id       Int      @id @default(autoincrement())
   name     String
   users    User[]
@@ -19,11 +19,10 @@ model Depatment{
 
 model User {
   id       Int      @id @default(autoincrement())
-  name     String
-  address  String
-  birthday DateTime
-  identity String
-  departmentId Int
-  depatment Depatment @relation(fields: [departmentId], references : [id])
+  name     String?
+  address  String?
+  birthday DateTime?
+ departmentId Int
+ department Department @relation(fields: [departmentId], references : [id])
 }
 

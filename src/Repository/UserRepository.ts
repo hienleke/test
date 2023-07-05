@@ -22,27 +22,50 @@ export class UserRepository {
           //
           return this._users;
      }
-     findbyID(id: number): User | null {
+     async findbyID(id: number, type: TYPE_ORM): Promise<User | null> {
           //
-          let userNeed2find = this._users.find((ele) => {
-               return ele._id == id;
-          });
-          if (!userNeed2find) return null;
-          return userNeed2find;
-     }
+          let userNeed2find;
 
+          if (type == TYPE_ORM.sequelize) {
+               userNeed2find = await userSchema.findByPk(id);
+          } else if (type == TYPE_ORM.prisma) {
+               userNeed2find = await prisma.user.findUnique({
+                    where: {
+                         id: id,
+                    },
+               });
+               console.log("🚀 ~ file: UserRepository.ts:37 ~ UserRepository ~ findbyID ~ userNeed2find:", userNeed2find);
+          }
+          return userNeed2find ? userNeed2find : null;
+     }
+     async findbyIDdepartment(id: number, type: TYPE_ORM): Promise<User | null> {
+          //
+          let userNeed2find;
+
+          if (type == TYPE_ORM.sequelize) {
+               userNeed2find = await userSchema.findByPk(id);
+          } else if (type == TYPE_ORM.prisma) {
+               userNeed2find = await prisma.depatment.findUnique({
+                    where: {
+                         id: id,
+                    },
+                    include: {
+                         users: true, // All posts where authorId == 20
+                    },
+               });
+               console.log("🚀 ~ file: UserRepository.ts:56 ~ UserRepository ~ findbyIDdepartment ~ userNeed2find:", userNeed2find);
+          }
+          return userNeed2find ? userNeed2find : null;
+     }
      async create(user: User, type: TYPE_ORM): Promise<User | null> {
           let newUser;
 
           if (type == TYPE_ORM.sequelize) {
                newUser = await userSchema.create(user.toObject());
           } else if (type == TYPE_ORM.prisma) {
-               newUser = await prisma.user.create({
-                    data: user.toObject(),
-               });
+               newUser = await prisma.user.create({ data: user.toObject() });
                console.log("🚀 ~ file: UserRepository.ts:43 ~ UserRepository ~ create ~ newUser:", newUser);
           }
-          console.log(" new user :", newUser);
           return newUser ? user : null;
      }
 

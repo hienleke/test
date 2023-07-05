@@ -70,13 +70,38 @@ function controllerFactory(container) {
                 res.send(this._userRepository._users);
             });
         }
+        getuserbyid(req, res) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let { id } = req.params;
+                let { type_orm } = req.body;
+                let user = yield this._userRepository.findbyID(Number(id), Number(type_orm));
+                if (user) {
+                    res.json(user);
+                }
+                else
+                    res.json("not found");
+            });
+        }
+        getuserbyidDeparment(req, res) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let { id } = req.params;
+                let { type_orm } = req.body;
+                let user = yield this._userRepository.findbyIDdepartment(Number(id), type_orm);
+                if (user) {
+                    res.json(user);
+                }
+                else
+                    res.json("not found");
+            });
+        }
         getuserfromredis(req, res) {
             return __awaiter(this, void 0, void 0, function* () {
                 let { id } = req.params;
+                let { type_orm } = req.body;
                 let data = yield redisClient_1.RDB.get(id);
                 console.log("Data  out :", data === null || data === void 0 ? void 0 : data.toString());
                 if (!data) {
-                    let user = this._userRepository.findbyID(Number(id));
+                    let user = yield this._userRepository.findbyID(Number(id), Number(type_orm));
                     if (user) {
                         res.json(user);
                         yield redisClient_1.RDB.set(id, JSON.stringify(user));
@@ -176,6 +201,22 @@ function controllerFactory(container) {
         __metadata("design:paramtypes", [Object, Object]),
         __metadata("design:returntype", Promise)
     ], UserController.prototype, "get", null);
+    __decorate([
+        (0, inversify_express_utils_1.httpGet)("/:id"),
+        __param(0, (0, inversify_express_utils_1.request)()),
+        __param(1, (0, inversify_express_utils_1.response)()),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object, Object]),
+        __metadata("design:returntype", Promise)
+    ], UserController.prototype, "getuserbyid", null);
+    __decorate([
+        (0, inversify_express_utils_1.httpGet)("/getbydepartment/:id"),
+        __param(0, (0, inversify_express_utils_1.request)()),
+        __param(1, (0, inversify_express_utils_1.response)()),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object, Object]),
+        __metadata("design:returntype", Promise)
+    ], UserController.prototype, "getuserbyidDeparment", null);
     __decorate([
         (0, inversify_express_utils_1.httpGet)("/cache/:id"),
         __param(0, (0, inversify_express_utils_1.request)()),

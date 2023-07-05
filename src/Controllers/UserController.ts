@@ -23,13 +23,34 @@ export function controllerFactory(container: Container) {
           public async get(@request() req: express.Request, @response() res: express.Response) {
                res.send(this._userRepository._users);
           }
+
+          @httpGet("/:id")
+          public async getuserbyid(@request() req: express.Request, @response() res: express.Response) {
+               let { id } = req.params;
+               let { type_orm } = req.body;
+               let user = await this._userRepository.findbyID(Number(id), Number(type_orm));
+               if (user) {
+                    res.json(user);
+               } else res.json("not found");
+          }
+
+          @httpGet("/getbydepartment/:id")
+          public async getuserbyidDeparment(@request() req: express.Request, @response() res: express.Response) {
+               let { id } = req.params;
+               let { type_orm } = req.body;
+               let user = await this._userRepository.findbyIDdepartment(Number(id), type_orm);
+               if (user) {
+                    res.json(user);
+               } else res.json("not found");
+          }
           @httpGet("/cache/:id")
           public async getuserfromredis(@request() req: express.Request, @response() res: express.Response) {
                let { id } = req.params;
+               let { type_orm } = req.body;
                let data = await RDB.get(id);
                console.log("Data  out :", data?.toString());
                if (!data) {
-                    let user = this._userRepository.findbyID(Number(id));
+                    let user = await this._userRepository.findbyID(Number(id), Number(type_orm));
                     if (user) {
                          res.json(user);
                          await RDB.set(id, JSON.stringify(user));

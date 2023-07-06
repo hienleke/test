@@ -5,6 +5,7 @@
      "main": "build/app.js",
      "scripts": {
           "start": "tsc && nodemon  build/app.js",
+          "generalData": "ts-node src/mockjson/generalMockData.ts",
           "test": "echo \"Error: no test specified\" && exit 1"
      },
      "author": "clay k",
@@ -29,6 +30,8 @@
           "@prisma/client": "^4.16.2",
           "inversify": "^6.0.1",
           "inversify-express-utils": "^6.4.3",
+          "lodash": "^4.17.21",
+          "moment": "^2.29.4",
           "multer": "^1.4.5-lts.1",
           "nodemon": "^1.14.9",
           "pg": "^8.11.1",

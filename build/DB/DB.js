@@ -19,6 +19,9 @@ const sequelize = new sequelize_typescript_1.Sequelize({
     password: "postgres",
     database: "test",
     logging: false,
+    define: {
+        timestamps: false,
+    },
 });
 exports.sequelize = sequelize;
 function connectDB() {

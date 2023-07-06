@@ -1,10 +1,12 @@
+import { departmentRepository } from "./DepartmentRepository";
+import { TYPE_ORM } from "./../Types/type";
 import * as fs from "fs";
-//import { injectable } from "inversify";
-import User from "../Models/User";
+import { User } from "../Models/User";
 import { injectable } from "inversify";
-import { TYPE_ORM } from "../Types/type";
-import userSchema from "../Models/userSchema";
+import moment from "moment";
+import userSchema from "../Models/sequelize/userSchema";
 import { PrismaClient, Prisma } from "@prisma/client";
+import DepartmentSchema from "../Models/sequelize/departmentSchema";
 
 const prisma = new PrismaClient();
 
@@ -18,14 +20,65 @@ export class UserRepository {
                this._users.push(new User(ele._id, ele._name, new Date(ele._birthday), ele._address));
           }
      }
-     findAll(): User[] {
+     async findAll(type): Promise<User[] | null> {
           //
-          return this._users;
+          let userNeed2find;
+          if (type == TYPE_ORM.sequelize) {
+               userNeed2find = await userSchema.findAll();
+          } else if (type == TYPE_ORM.prisma) {
+               userNeed2find = await prisma.user.findMany({
+                    select: {
+                         id: true,
+                         name: true,
+                         departments: {
+                              select: {
+                                   name: true,
+                              },
+                         },
+                    },
+
+                    // include: {
+                    //      departments: true, // All posts where authorId == 20
+                    // },
+               });
+               // console.log("🚀 ~ file: UserRepository.ts:56 ~ UserRepository ~ findbyIDdepartment ~ userNeed2find:", userNeed2find);
+          }
+          return userNeed2find ? userNeed2find : null;
+     }
+
+     async findUserWithAge(age: number, type: TYPE_ORM) {
+          let userNeed2find;
+          let date = moment().subtract(20, "year").toDate();
+          if (type == TYPE_ORM.sequelize) {
+               userNeed2find = await userSchema.findAll({
+                    where: {
+                         birthday: { lt: date },
+                    },
+                    attributes: ["name", "birthday"],
+                    include: [{ model: DepartmentSchema, attributes: ["name"] }],
+               });
+          } else if (type == TYPE_ORM.prisma) {
+               const [user] = await prisma.$transaction([
+                    prisma.user.findMany({
+                         where: {
+                              birthday: { lt: date },
+                         },
+                         select: {
+                              name: true,
+                              birthday: true,
+                              departments: { select: { name: true } },
+                         },
+
+                         take: 32767,
+                    }),
+               ]);
+               userNeed2find = user;
+          }
+          return userNeed2find ? userNeed2find : null;
      }
      async findbyID(id: number, type: TYPE_ORM): Promise<User | null> {
           //
           let userNeed2find;
-
           if (type == TYPE_ORM.sequelize) {
                userNeed2find = await userSchema.findByPk(id);
           } else if (type == TYPE_ORM.prisma) {
@@ -39,13 +92,11 @@ export class UserRepository {
           return userNeed2find ? userNeed2find : null;
      }
      async findbyIDdepartment(id: number, type: TYPE_ORM): Promise<User | null> {
-          //
           let userNeed2find;
-
           if (type == TYPE_ORM.sequelize) {
                userNeed2find = await userSchema.findByPk(id);
           } else if (type == TYPE_ORM.prisma) {
-               userNeed2find = await prisma.depatment.findUnique({
+               userNeed2find = await prisma.department.findUnique({
                     where: {
                          id: id,
                     },
@@ -90,7 +141,6 @@ export class UserRepository {
                return userDelete;
           }
           return null;
-          //
      }
 
      updateFile() {

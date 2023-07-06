@@ -22,7 +22,6 @@ model User {
   name     String?
   address  String?
   birthday DateTime?
- departmentId Int
- department Department @relation(fields: [departmentId], references : [id])
+ departments Department[]
 }
 

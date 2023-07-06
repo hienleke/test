@@ -1,7 +1,6 @@
-import { sequelize } from "../DB/DB";
+import { sequelize } from "../../DB/DB";
 import { DataTypes } from "sequelize";
-
-const userSchema = sequelize.define("users", {
+const userSchema = sequelize.define("User", {
      id: {
           autoIncrement: true,
           type: DataTypes.INTEGER,

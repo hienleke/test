@@ -8,6 +8,9 @@ const sequelize = new Sequelize({
      password: "postgres",
      database: "test",
      logging: false,
+     define: {
+          timestamps: false,
+     },
 });
 async function connectDB() {
      await sequelize.sync({ force: true });

@@ -67,7 +67,19 @@ function controllerFactory(container) {
         }
         get(req, res) {
             return __awaiter(this, void 0, void 0, function* () {
-                res.send(this._userRepository._users);
+                let { type_orm } = req.body;
+                let data = yield this._userRepository.findAll(type_orm);
+                res.json(data);
+            });
+        }
+        getusermorethanage(req, res) {
+            return __awaiter(this, void 0, void 0, function* () {
+                let { type_orm } = req.body;
+                console.log("🚀 ~ file: UserController.ts:32 ~ UserController ~ getusermorethanage ~ type_orm:", type_orm);
+                let { age } = req.params;
+                console.log("🚀 ~ file: UserController.ts:33 ~ UserController ~ getusermorethanage ~ age:", age);
+                let data = yield this._userRepository.findUserWithAge(Number(age), type_orm);
+                res.json(data);
             });
         }
         getuserbyid(req, res) {
@@ -201,6 +213,14 @@ function controllerFactory(container) {
         __metadata("design:paramtypes", [Object, Object]),
         __metadata("design:returntype", Promise)
     ], UserController.prototype, "get", null);
+    __decorate([
+        (0, inversify_express_utils_1.httpGet)("/getusermorethanage/:age"),
+        __param(0, (0, inversify_express_utils_1.request)()),
+        __param(1, (0, inversify_express_utils_1.response)()),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", [Object, Object]),
+        __metadata("design:returntype", Promise)
+    ], UserController.prototype, "getusermorethanage", null);
     __decorate([
         (0, inversify_express_utils_1.httpGet)("/:id"),
         __param(0, (0, inversify_express_utils_1.request)()),

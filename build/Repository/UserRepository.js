@@ -45,11 +45,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRepository = exports.UserRepository = void 0;
+const type_1 = require("./../Types/type");
 const fs = __importStar(require("fs"));
-//import { injectable } from "inversify";
 const User_1 = __importDefault(require("../Models/User"));
 const inversify_1 = require("inversify");
-const type_1 = require("../Types/type");
+const moment_1 = __importDefault(require("moment"));
 const userSchema_1 = __importDefault(require("../Models/userSchema"));
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
@@ -62,9 +62,60 @@ let UserRepository = exports.UserRepository = class UserRepository {
             this._users.push(new User_1.default(ele._id, ele._name, new Date(ele._birthday), ele._address));
         }
     }
-    findAll() {
-        //
-        return this._users;
+    findAll(type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            //
+            let userNeed2find;
+            if (type == type_1.TYPE_ORM.sequelize) {
+                userNeed2find = yield userSchema_1.default.findAll();
+            }
+            else if (type == type_1.TYPE_ORM.prisma) {
+                userNeed2find = yield prisma.user.findMany({
+                    select: {
+                        id: true,
+                        name: true,
+                        departments: {
+                            select: {
+                                name: true,
+                            },
+                        },
+                    },
+                    // include: {
+                    //      departments: true, // All posts where authorId == 20
+                    // },
+                });
+                // console.log("🚀 ~ file: UserRepository.ts:56 ~ UserRepository ~ findbyIDdepartment ~ userNeed2find:", userNeed2find);
+            }
+            return userNeed2find ? userNeed2find : null;
+        });
+    }
+    findUserWithAge(age, type) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let userNeed2find;
+            let date = (0, moment_1.default)().subtract(20, "year").toDate();
+            if (type == type_1.TYPE_ORM.sequelize) {
+                userNeed2find = yield userSchema_1.default.findAll({
+                    where: {
+                        birthday: { lt: date },
+                    },
+                });
+            }
+            else if (type == type_1.TYPE_ORM.prisma) {
+                const [user] = yield prisma.$transaction([
+                    prisma.user.findMany({
+                        where: {
+                            birthday: { lt: date },
+                        },
+                        include: {
+                            departments: { select: { name: true } },
+                        },
+                        take: 32767,
+                    }),
+                ]);
+                userNeed2find = user;
+            }
+            return userNeed2find ? userNeed2find : null;
+        });
     }
     findbyID(id, type) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -86,13 +137,12 @@ let UserRepository = exports.UserRepository = class UserRepository {
     }
     findbyIDdepartment(id, type) {
         return __awaiter(this, void 0, void 0, function* () {
-            //
             let userNeed2find;
             if (type == type_1.TYPE_ORM.sequelize) {
                 userNeed2find = yield userSchema_1.default.findByPk(id);
             }
             else if (type == type_1.TYPE_ORM.prisma) {
-                userNeed2find = yield prisma.depatment.findUnique({
+                userNeed2find = yield prisma.department.findUnique({
                     where: {
                         id: id,
                     },
@@ -139,7 +189,6 @@ let UserRepository = exports.UserRepository = class UserRepository {
             return userDelete;
         }
         return null;
-        //
     }
     updateFile() {
         fs.writeFileSync("src/mockjson/MOCK_DATA.json", JSON.stringify(this._users));

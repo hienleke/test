@@ -8,7 +8,15 @@ class User {
         this._address = address;
     }
     toObject() {
-        return { name: this._name, address: this._address, birthday: this._birthday, departmentId: 1 };
+        //let rand;
+        return {
+            name: this._name,
+            address: this._address,
+            birthday: this._birthday,
+            // departments: {
+            //      create: [{ name: "That one time with the stuff" }, { name: "The story of planet Earth" }],
+            // },
+        };
     }
 }
 exports.default = User;

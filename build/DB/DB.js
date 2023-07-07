@@ -15,7 +15,7 @@ const sequelize = new sequelize_typescript_1.Sequelize({
     dialect: "postgres",
     host: "localhost",
     username: "postgres",
-    port: 5432,
+    port: 5435,
     password: "postgres",
     database: "test",
     logging: false,
@@ -26,7 +26,7 @@ const sequelize = new sequelize_typescript_1.Sequelize({
 exports.sequelize = sequelize;
 function connectDB() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield sequelize.sync({ force: true });
+        yield sequelize.sync();
         sequelize
             .authenticate()
             .then(() => {

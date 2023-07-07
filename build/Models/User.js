@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Department = exports.User = void 0;
 class User {
     constructor(id, name, birthday, address) {
         this._id = id ? id : -1;
@@ -19,4 +20,11 @@ class User {
         };
     }
 }
-exports.default = User;
+exports.User = User;
+class Department {
+    constructor(id, name, birthday, address) {
+        this._id = id ? id : -1;
+        this._name = name;
+    }
+}
+exports.Department = Department;

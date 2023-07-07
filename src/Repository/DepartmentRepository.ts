@@ -28,6 +28,7 @@ export class DepartmentRepository {
                          },
                     },
                });
+               console.log("🚀 ~ file: DepartmentRepository.ts:31 ~ DepartmentRepository ~ findAll ~ departNeed2find:", departNeed2find);
                // console.log("🚀 ~ file: UserRepository.ts:56 ~ UserRepository ~ findbyIDdepartment ~ userNeed2find:", userNeed2find);
           }
           return departNeed2find ? departNeed2find : null;

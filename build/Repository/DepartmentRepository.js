@@ -24,7 +24,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.departmentRepository = exports.DepartmentRepository = void 0;
 const type_1 = require("../Types/type");
 const inversify_1 = require("inversify");
-const userSchema_1 = __importDefault(require("../Models/userSchema"));
+const userSchema_1 = __importDefault(require("../Models/sequelize/userSchema"));
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 let DepartmentRepository = exports.DepartmentRepository = class DepartmentRepository {
@@ -48,6 +48,7 @@ let DepartmentRepository = exports.DepartmentRepository = class DepartmentReposi
                         },
                     },
                 });
+                console.log("🚀 ~ file: DepartmentRepository.ts:31 ~ DepartmentRepository ~ findAll ~ departNeed2find:", departNeed2find);
                 // console.log("🚀 ~ file: UserRepository.ts:56 ~ UserRepository ~ findbyIDdepartment ~ userNeed2find:", userNeed2find);
             }
             return departNeed2find ? departNeed2find : null;

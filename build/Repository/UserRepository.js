@@ -47,19 +47,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRepository = exports.UserRepository = void 0;
 const type_1 = require("./../Types/type");
 const fs = __importStar(require("fs"));
-const User_1 = __importDefault(require("../Models/User"));
+const User_1 = require("../Models/User");
 const inversify_1 = require("inversify");
-const moment_1 = __importDefault(require("moment"));
-const userSchema_1 = __importDefault(require("../Models/userSchema"));
+const userSchema_1 = __importDefault(require("../Models/sequelize/userSchema"));
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const DB_1 = require("../DB/DB");
+const prisma = new client_1.PrismaClient({
+    log: [
+        {
+            emit: "event",
+            level: "query",
+        },
+        {
+            emit: "stdout",
+            level: "error",
+        },
+        {
+            emit: "stdout",
+            level: "info",
+        },
+        {
+            emit: "stdout",
+            level: "warn",
+        },
+    ],
+});
+prisma.$on("query", (e) => {
+    console.log("Query: " + e.query);
+    console.log("Params: " + e.params);
+    // console.log("Duration: " + e.duration + "ms");
+});
 let UserRepository = exports.UserRepository = class UserRepository {
     constructor() {
         this._users = [];
         let jsonString = fs.readFileSync("src/mockjson/MOCK_DATA.json");
         let jsonData = JSON.parse(jsonString.toString());
         for (let ele of jsonData) {
-            this._users.push(new User_1.default(ele._id, ele._name, new Date(ele._birthday), ele._address));
+            this._users.push(new User_1.User(ele._id, ele._name, new Date(ele._birthday), ele._address));
         }
     }
     findAll(type) {
@@ -92,26 +116,17 @@ let UserRepository = exports.UserRepository = class UserRepository {
     findUserWithAge(age, type) {
         return __awaiter(this, void 0, void 0, function* () {
             let userNeed2find;
-            let date = (0, moment_1.default)().subtract(20, "year").toDate();
+            // let date = moment().subtract(20, "year").toDate();
             if (type == type_1.TYPE_ORM.sequelize) {
-                userNeed2find = yield userSchema_1.default.findAll({
-                    where: {
-                        birthday: { lt: date },
-                    },
-                });
+                yield DB_1.sequelize.transaction({}, (t) => __awaiter(this, void 0, void 0, function* () {
+                    let data = yield DB_1.sequelize.query(`select * from public.getusermorethanage(${age})`);
+                    userNeed2find = data;
+                    console.log(" data :", data);
+                    console.log("🚀 ~ file: UserRepository.ts:83 ~ UserRepository ~ awaitsequelize.transaction ~ userNeed2find:", userNeed2find);
+                }));
             }
             else if (type == type_1.TYPE_ORM.prisma) {
-                const [user] = yield prisma.$transaction([
-                    prisma.user.findMany({
-                        where: {
-                            birthday: { lt: date },
-                        },
-                        include: {
-                            departments: { select: { name: true } },
-                        },
-                        take: 32767,
-                    }),
-                ]);
+                const [user] = yield prisma.$transaction([prisma.$queryRaw `select * from public.getusermorethanage(${age})`]);
                 userNeed2find = user;
             }
             return userNeed2find ? userNeed2find : null;
@@ -130,7 +145,6 @@ let UserRepository = exports.UserRepository = class UserRepository {
                         id: id,
                     },
                 });
-                console.log("🚀 ~ file: UserRepository.ts:37 ~ UserRepository ~ findbyID ~ userNeed2find:", userNeed2find);
             }
             return userNeed2find ? userNeed2find : null;
         });

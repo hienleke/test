@@ -29,9 +29,9 @@ export function controllerFactory(container: Container) {
           @httpGet("/getusermorethanage/:age")
           public async getusermorethanage(@request() req: express.Request, @response() res: express.Response) {
                let { type_orm } = req.body;
-               console.log("🚀 ~ file: UserController.ts:32 ~ UserController ~ getusermorethanage ~ type_orm:", type_orm);
+
                let { age } = req.params;
-               console.log("🚀 ~ file: UserController.ts:33 ~ UserController ~ getusermorethanage ~ age:", age);
+
                let data = await this._userRepository.findUserWithAge(Number(age), type_orm);
                res.json(data);
           }

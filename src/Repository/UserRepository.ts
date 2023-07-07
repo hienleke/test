@@ -7,8 +7,35 @@ import moment from "moment";
 import userSchema from "../Models/sequelize/userSchema";
 import { PrismaClient, Prisma } from "@prisma/client";
 import DepartmentSchema from "../Models/sequelize/departmentSchema";
+import { Transaction } from "sequelize";
+import { sequelize } from "../DB/DB";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+     log: [
+          {
+               emit: "event",
+               level: "query",
+          },
+          {
+               emit: "stdout",
+               level: "error",
+          },
+          {
+               emit: "stdout",
+               level: "info",
+          },
+          {
+               emit: "stdout",
+               level: "warn",
+          },
+     ],
+});
+
+prisma.$on("query", (e) => {
+     console.log("Query: " + e.query);
+     console.log("Params: " + e.params);
+     // console.log("Duration: " + e.duration + "ms");
+});
 
 @injectable()
 export class UserRepository {
@@ -48,30 +75,17 @@ export class UserRepository {
 
      async findUserWithAge(age: number, type: TYPE_ORM) {
           let userNeed2find;
-          let date = moment().subtract(20, "year").toDate();
+          // let date = moment().subtract(20, "year").toDate();
           if (type == TYPE_ORM.sequelize) {
-               userNeed2find = await userSchema.findAll({
-                    where: {
-                         birthday: { lt: date },
-                    },
-                    attributes: ["name", "birthday"],
-                    include: [{ model: DepartmentSchema, attributes: ["name"] }],
+               await sequelize.transaction({}, async (t) => {
+                    let data = await sequelize.query(`select * from public.getusermorethanage(${age})`);
+                    userNeed2find = data;
+                    console.log(" data :", data);
+                    console.log("🚀 ~ file: UserRepository.ts:83 ~ UserRepository ~ awaitsequelize.transaction ~ userNeed2find:", userNeed2find);
                });
           } else if (type == TYPE_ORM.prisma) {
-               const [user] = await prisma.$transaction([
-                    prisma.user.findMany({
-                         where: {
-                              birthday: { lt: date },
-                         },
-                         select: {
-                              name: true,
-                              birthday: true,
-                              departments: { select: { name: true } },
-                         },
+               const [user] = await prisma.$transaction([prisma.$queryRaw`select * from public.getusermorethanage(${age})`]);
 
-                         take: 32767,
-                    }),
-               ]);
                userNeed2find = user;
           }
           return userNeed2find ? userNeed2find : null;
@@ -87,7 +101,6 @@ export class UserRepository {
                          id: id,
                     },
                });
-               console.log("🚀 ~ file: UserRepository.ts:37 ~ UserRepository ~ findbyID ~ userNeed2find:", userNeed2find);
           }
           return userNeed2find ? userNeed2find : null;
      }

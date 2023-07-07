@@ -43,16 +43,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.controllerFactory = void 0;
 const uploadMiddleware_1 = require("../Middleware/uploadMiddleware");
 const UserRepository_1 = require("./../Repository/UserRepository");
 const express = __importStar(require("express"));
 const inversify_express_utils_1 = require("inversify-express-utils");
-const User_1 = __importDefault(require("../Models/User"));
+const User_1 = require("../Models/User");
 const inversify_1 = require("inversify");
 const redisClient_1 = require("../redis/redisClient");
 const UtilHelper_1 = require("../util/UtilHelper");
@@ -75,9 +72,7 @@ function controllerFactory(container) {
         getusermorethanage(req, res) {
             return __awaiter(this, void 0, void 0, function* () {
                 let { type_orm } = req.body;
-                console.log("🚀 ~ file: UserController.ts:32 ~ UserController ~ getusermorethanage ~ type_orm:", type_orm);
                 let { age } = req.params;
-                console.log("🚀 ~ file: UserController.ts:33 ~ UserController ~ getusermorethanage ~ age:", age);
                 let data = yield this._userRepository.findUserWithAge(Number(age), type_orm);
                 res.json(data);
             });
@@ -149,7 +144,7 @@ function controllerFactory(container) {
             return __awaiter(this, void 0, void 0, function* () {
                 let { name, address, birthday, type_orm } = req.body;
                 let _birthday = new Date(birthday);
-                let user = new User_1.default(-1, name, _birthday ? _birthday : new Date(), address);
+                let user = new User_1.User(-1, name, _birthday ? _birthday : new Date(), address);
                 let data = yield this._userRepository.create(user, type_orm);
                 if (data)
                     res.json(data);
@@ -171,7 +166,7 @@ function controllerFactory(container) {
             return __awaiter(this, void 0, void 0, function* () {
                 let { id, name, address, birthday } = req.body;
                 let _birthday = new Date(birthday);
-                let user = new User_1.default(Number(id), name, _birthday ? _birthday : new Date(), address);
+                let user = new User_1.User(Number(id), name, _birthday ? _birthday : new Date(), address);
                 let data = this._userRepository.update(user);
                 if (data)
                     res.json(data);

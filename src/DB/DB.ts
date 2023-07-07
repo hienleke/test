@@ -4,7 +4,7 @@ const sequelize = new Sequelize({
      dialect: "postgres",
      host: "localhost",
      username: "postgres",
-     port: 5432,
+     port: 5435,
      password: "postgres",
      database: "test",
      logging: false,
@@ -13,7 +13,7 @@ const sequelize = new Sequelize({
      },
 });
 async function connectDB() {
-     await sequelize.sync({ force: true });
+     await sequelize.sync();
      sequelize
           .authenticate()
           .then(() => {
